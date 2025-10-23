@@ -17,5 +17,6 @@
     "MediaTrackNext",
     "MediaTrackPrevious"
   ],
-  "evaluateScriptOnDocumentStart": true
+  "evaluateScriptOnDocumentStart": false
+
 }
