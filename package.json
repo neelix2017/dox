@@ -5,6 +5,7 @@
   "description": "Šolski urnik",
   "packageType": "app",
   "main": "https://freeweb.t-2.net/BaseIndex/urnik.htm",
+  "appPath": "https://freeweb.t-2.net/BaseIndex/urnik.htm",
   "author": "Peter",
   "serviceFile": "",
   "keys": [
@@ -18,5 +19,6 @@
   "evaluateScriptOnDocumentStart": false
 
 }
+
 
 
