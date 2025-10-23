@@ -1,5 +1,5 @@
 {
-  "name": "/Urnik",
+  "name": "Urnik",
   "appName": "Urnik",
   "version": "0.0.9",
   "description": "Šolski urnik",
@@ -18,7 +18,7 @@
   ],
    "repository": {
     "type": "git",
-    "url": "https://github.com/YourName/myhtmlviewer.git"
+    "url": "https://github.com/neelix2017/samsung-test.git"
   },
   "keywords": [
     "tizenbrew",
@@ -32,6 +32,7 @@
     "icon": "icon.png"
   }
 }
+
 
 
 
