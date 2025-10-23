@@ -16,9 +16,9 @@
     "Enter",
     "Return"
   ],
-  "evaluateScriptOnDocumentStart": false
-
+  "evaluateScriptOnDocumentStart": true
 }
+
 
 
 
