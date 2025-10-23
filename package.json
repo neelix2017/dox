@@ -15,8 +15,24 @@
     "ArrowRight",
     "Enter",
     "Return"
-  ]
+  ],
+   "repository": {
+    "type": "git",
+    "url": "https://github.com/YourName/myhtmlviewer.git"
+  },
+  "keywords": [
+    "tizenbrew",
+    "tizen",
+    "module",
+    "htmlviewer"
+  ],
+  "tizenbrew": {
+    "name": "Urnik",
+    "description": "Displays a specific HTML page or URL in fullscreen mode for TizenBrew.",
+    "icon": "icon.png"
+  }
 }
+
 
 
 
