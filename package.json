@@ -4,7 +4,7 @@
   "version": "0.0.2",
   "description": "Šolski urnik",
   "packageType": "app",
-  "appPath": "main.js",
+  "appPath": "index.html",
   "author": "Peter",
   "serviceFile": "",
   "keys": [
@@ -20,4 +20,5 @@
   "evaluateScriptOnDocumentStart": ""
 
 }
+
 
