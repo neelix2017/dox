@@ -5,8 +5,11 @@
   "description": "Šolski urnik",
   "packageType": "app",
   "websiteURL": "https://lg.tv.twitch.tv/",
+  "appPath": "main.js",
   "main": "main.js",
   "author": "Neelix",
+  "serviceFile": "",
+  "evaluateScriptOnDocumentStart":"",
   "keys": [
     "MediaPlayPause",
     "MediaPlay",
@@ -21,6 +24,7 @@
     "url": "https://github.com/neelix2017/samsung-z"
   }
 }
+
 
 
 
