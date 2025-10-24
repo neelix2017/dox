@@ -1,5 +1,5 @@
 {
-  "name": "/Urnik",
+  "name": "Urnik",
   "appName": "Urnik",
   "version": "0.1.0",
   "description": "Šolski urnik",
@@ -32,6 +32,7 @@
     "icon": "icon.png"
   }
 }
+
 
 
 
