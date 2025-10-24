@@ -1,7 +1,7 @@
 {
   "name": "/Urnik",
   "appName": "Urnik",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Šolski urnik",
   "packageType": "app",
   "appPath": "index.html",
@@ -20,5 +20,6 @@
   "evaluateScriptOnDocumentStart": ""
 
 }
+
 
 
