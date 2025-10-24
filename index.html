@@ -2,16 +2,47 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Urnik</title>
+  <title>Domoticz Dashboard</title>
   <style>
-    body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden;}
-    iframe { width:100%; height:100%; border:none;}
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      height: 100%;
+      overflow: auto;
+      font-family: sans-serif;
+    }
+    #content {
+      padding: 10px;
+    }
+    #loading {
+      text-align: center;
+      padding-top: 20%;
+      font-size: 20px;
+    }
   </style>
 </head>
 <body>
-  <iframe src="https://192.168.0.111:8080"></iframe>
+  <div id="loading">Loading Domoticz...</div>
+  <div id="content"></div>
+
+  <script>
+    const DOMOTICZ_URL = "https://freeweb.t-2.net/BaseIndex/urnik.htm"; // change to your address
+
+    async function loadDomoticz() {
+      try {
+        const response = await fetch(DOMOTICZ_URL, { mode: "cors" });
+        const html = await response.text();
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("content").innerHTML = html;
+      } catch (err) {
+        document.getElementById("loading").textContent =
+          "⚠️ Failed to load Domoticz: " + err.message;
+      }
+    }
+
+    loadDomoticz();
+  </script>
 </body>
-
 </html>
-
-
