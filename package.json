@@ -1,8 +1,8 @@
 {
-  "name": "/Urnik",
-  "appName": "Urnik",
+  "name": "/Domoticz",
+  "appName": "Domoticz",
   "version": "1.0.",
-  "description": "Šolski urnik",
+  "description": "Domoticz",
   "packageType": "app",
   "appPath": "index.html",
   "author": "Peter",
@@ -20,6 +20,7 @@
   "evaluateScriptOnDocumentStart": ""
 
 }
+
 
 
 
