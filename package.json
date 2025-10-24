@@ -8,18 +8,17 @@
   "author": "Peter",
   "serviceFile": "",
   "keys": [
-    "MediaPlayPause",
-    "MediaPlay",
-    "MediaPause",
-    "MediaStop",
-    "MediaFastForward",
-    "MediaRewind",
-    "MediaTrackNext",
-    "MediaTrackPrevious"
+     "ArrowUp",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "Enter",
+    "Return"
   ],
   "evaluateScriptOnDocumentStart": ""
 
 }
+
 
 
 
