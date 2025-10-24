@@ -19,7 +19,7 @@ jobs:
         run: |
           # Set your repo details
           USERNAME="neelix2017"
-          REPO="samsung-test"
+          REPO="samsung-t"
           BRANCH="main"
 
           # Purge entire branch
