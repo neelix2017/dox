@@ -1,7 +1,7 @@
 {
   "name": "/Urnik",
   "appName": "Urnik",
-  "version": "0.0.9",
+  "version": "0.0.2",
   "description": "Šolski urnik",
   "packageType": "app",
   "appPath": "https://freeweb.t-2.net/BaseIndex/urnik.htm",
@@ -17,5 +17,6 @@
     "MediaTrackNext",
     "MediaTrackPrevious"
   ],
-  "evaluateScriptOnDocumentStart": true
+  "evaluateScriptOnDocumentStart": ""
+
 }
