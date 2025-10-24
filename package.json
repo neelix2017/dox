@@ -1,37 +1,27 @@
 {
-  "name": "@main/Urnik",
+  "name": "@neelix2017/samsungx",
   "appName": "Urnik",
-  "version": "0.1.2",
+  "version": "0.0.2",
   "description": "Šolski urnik",
-  "packageType": "app",
+  "packageType": "apps",
+  "websiteURL": "https://lg.tv.twitch.tv/",
   "main": "main.js",
-  "appPath": "index.html",
-  "author": "Peter",
-  "serviceFile": "",
+  "author": "Neelix",
   "keys": [
-    "ArrowUp",
-    "ArrowDown",
-    "ArrowLeft",
-    "ArrowRight",
-    "Enter",
-    "Return"
+    "MediaPlayPause",
+    "MediaPlay",
+    "MediaPause",
+    "MediaStop",
+    "MediaFastForward",
+    "MediaRewind",
+    "MediaTrackNext",
+    "MediaTrackPrevious"
   ],
-   "repository": {
-    "type": "git",
-    "url": "https://github.com/neelix2017/samsungs.git"
-  },
-  "keywords": [
-    "tizenbrew",
-    "tizen",
-    "module",
-    "htmlviewer"
-  ],
-  "tizenbrew": {
-    "name": "Urnik",
-    "description": "Displays a specific HTML page or URL in fullscreen mode for TizenBrew.",
-    "icon": "icon.png"
+  "repository": {
+    "url": "https://github.com/neelix2017/samsungx"
   }
 }
+
 
 
 
