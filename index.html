@@ -1,48 +1,584 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Domoticz Dashboard</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: #fff;
-      height: 100%;
-      overflow: auto;
-      font-family: sans-serif;
-    }
-    #content {
-      padding: 10px;
-    }
-    #loading {
-      text-align: center;
-      padding-top: 20%;
-      font-size: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Šolski urnik</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+			width: 110px;
+        }
+        .time-col {
+            width: 4%;
+			font-size: 9px;
+            background-color: #f9f9f9;
+        }
+        .day-col {
+            width: 18%;
+        }
+        .day-col-group {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .cancelled {
+            //text-decoration: line-through;
+            //color: #999;
+        }
+		.optional {
+            //text-decoration: line-through;
+            color: #999;
+        }
+		.substitution {
+            color: red;
+        }
+        .event {
+            font-weight: bold;
+        }
+        .group1-event {
+                background-color: lightblue;
+				border-radius: 10px;
+				border: 2px solid;
+				padding: 10px; 
+        }
+        .group2-event {
+            background-color: lightgreen; /* Light green for group 2 */
+			border-radius: 10px;
+			border: 2px solid;
+			padding: 10px;
+        }
+		.ucitelj {
+            font-size: 9px;
+        }
+		.room {
+            font-size: 8px;
+			float: right;
+			margin-top: -45px;
+        }
+        .remarks {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 20px;
+        }
+        .upload-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            text-align: center;
+            max-width: 500px;
+        }
+        .hidden {
+            display: none;
+        }
+        .group-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .today {
+            background-color: #fffacd !important; /* Light yellow for today */
+        }
+        .today-header {
+            background-color: #ffeb3b !important; /* Bright yellow for today's header */
+            font-weight: bold;
+        }
+		.activity-event {
+            background-color: #f9e6ff; /* Light purple for activities */
+			border-radius: 10px;
+            border: 1px dashed #c79fd6;
+        }
+        .meal-cell {
+            background-color: #fff0e0;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .meal-time {
+            font-size: 10px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <div id="loading">Loading Domoticz...</div>
-  <div id="content"></div>
+    <h1>Šolski urnik</h1>
+    <div id="timetable-container" class="hidden">
+        <h2 id="timetable-title">Class Timetable Comparison</h2>
+        <div id="timetable"></div>
+        <div id="remarks" class="remarks"></div>
+    </div>
+	<a href='https://os8talcev.splet.arnes.si/jedilnik-os-8-talcev-logatec/'>Jedilnik</a><br><br>
+	<a href='https://malica.os8talcev.si/Account/Login?ReturnUrl=%2F'>Prijava/odjava</a>
+    <script>
+	function time(x){
+	  _x = x.split(x[2])
+	  return (Number(_x[0])+(Number(_x[1])/60))
+	}
+	function getDateWeek(date) {
+    const currentDate = 
+        (typeof date === 'object') ? date : new Date();
+    const januaryFirst = 
+        new Date(currentDate.getFullYear(), 0, 1);
+    const daysToNextMonday = 
+        (januaryFirst.getDay() === 1) ? 0 : 
+        (7 - januaryFirst.getDay()) % 7;
+    const nextMonday = 
+        new Date(currentDate.getFullYear(), 0, 
+        januaryFirst.getDate() + daysToNextMonday);
 
-  <script>
-    const DOMOTICZ_URL = "https://freeweb.t-2.net/BaseIndex/urnik.htm"; // change to your address
+    return (currentDate < nextMonday) ? 52 : 
+    (currentDate > nextMonday ? Math.ceil(
+    (currentDate - nextMonday) / (24 * 3600 * 1000) / 7) : 1);
+}
 
-    async function loadDomoticz() {
-      try {
-        const response = await fetch(DOMOTICZ_URL, { mode: "cors" });
+// Function to parse meal data from the website
+async function parseMealData() {
+    try {
+        const response = await fetch('https://os8talcev.splet.arnes.si/jedilnik-os-8-talcev-logatec/');
         const html = await response.text();
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("content").innerHTML = html;
-      } catch (err) {
-        document.getElementById("loading").textContent =
-          "⚠️ Failed to load Domoticz: " + err.message;
-      }
+        
+        // Create a temporary DOM element to parse the HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Find the MALICA section
+        const malicaHeader = Array.from(doc.querySelectorAll('h2')).find(h2 => 
+            h2.innerHTML.includes('MALICA') || h2.textContent.includes('MALICA')
+        );
+        
+        // Find the KOSILA section
+        const kosilaHeader = Array.from(doc.querySelectorAll('h2')).find(h2 => 
+            h2.innerHTML.includes('KOSILA') || h2.textContent.includes('KOSILA')
+        );
+        
+        if (!malicaHeader || !kosilaHeader) {
+            console.warn('Meal sections not found');
+            return {};
+        }
+        
+        // Get all paragraphs after MALICA header until KOSILA header
+        const malicaParagraphs = [];
+        let nextElement = malicaHeader.nextElementSibling;
+        while (nextElement && nextElement !== kosilaHeader) {
+            if (nextElement.tagName === 'P') {
+                if (nextElement.textContent.trim().length > 10) 
+                    {malicaParagraphs.push(nextElement.textContent.trim());}
+            }
+            nextElement = nextElement.nextElementSibling;
+        }
+        
+        // Get all paragraphs after KOSILA header
+        const kosilaParagraphs = [];
+        nextElement = kosilaHeader.nextElementSibling;
+        while (nextElement && nextElement.tagName === 'P') {
+            if (nextElement.textContent.trim().length > 10)
+                {kosilaParagraphs.push(nextElement.textContent.trim());}
+            nextElement = nextElement.nextElementSibling;
+        }
+        
+        // Map to Slovenian day names
+        const slovenianDays = ['Ponedeljek', 'Torek', 'Sreda', 'Četrtek', 'Petek'];
+        const mealsByDay = {};
+        let st=0
+        for (let i = 0; i < malicaParagraphs.length; i++) {
+            //console.log(malicaParagraphs[i])
+            if ( malicaParagraphs[i].search(' '+new Date().getDate()+'.') > 0) { console.log(malicaParagraphs[i]);st = i - new Date().getDay() +1 }
+            }
+        //console.log(st)
+        // Assign meals to days
+        for (let i = 0; i < slovenianDays.length; i++) {
+            mealsByDay[slovenianDays[i]] = {
+                malica: malicaParagraphs[i+st] || 'Ni podatka',
+                kosila: kosilaParagraphs[i+st] || 'Ni podatka'
+            };
+        }
+        
+        return mealsByDay;
+    } catch (error) {
+        console.error('Error fetching meal data:', error);
+        return {};
     }
+}
 
-    loadDomoticz();
-  </script>
+// Function to get Slovenian day name from date
+function getSlovenianDayName(date) {
+    const days = ['Nedelja', 'Ponedeljek', 'Torek', 'Sreda', 'Četrtek', 'Petek', 'Sobota'];
+    return days[date.getDay()];
+}
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Load two different schedules
+            const url2 = 'https://portal.lopolis.si/api/Public/FindGroupDiaryByWeek/?getCatalogues=false&groupId=194819&organizationId=122&weekId=2025_'+(getDateWeek()+1);
+            const url1 = 'https://portal.lopolis.si/api/Public/FindGroupDiaryByWeek/?getCatalogues=false&groupId=194826&organizationId=122&weekId=2025_'+(getDateWeek()+1);
+            
+            Promise.all([
+                fetch(url1).then(response => response.json()),
+                fetch(url2).then(response => response.json()),
+                fetch('https://freeweb.t-2.net/BaseIndex/krozki.json').then(response => response.json()),
+                parseMealData() // Fetch meal data
+            ]).then(([data1, data2, activitiesData, mealData]) => {
+                try {
+                    generateDualTimetable(data1, data2, activitiesData, mealData);
+                    document.getElementById('timetable-container').classList.remove('hidden');
+                } catch (error) {
+                    alert('Error generating timetable. Please check the console for details.');
+                    console.error(error);
+                }
+            }).catch(error => {
+                alert('Error fetching schedules: ' + error.message);
+                console.error(error);
+            });
+        });
+
+        function generateDualTimetable(data1, data2, activitiesData, mealData) {
+            // Extract relevant data from both schedules
+            const groupName1 = data1.groupName || 'Luka';
+            const groupName2 = data2.groupName || 'Anže';
+            const weekId = data1.weekId || data2.weekId || '';
+            
+            // Use days from first schedule (assuming both have same week structure)
+            const days = data1.dayItemDTOs || [];
+            const lessons1 = data1.diaryItemDTOs || [];
+            const lessons2 = data2.diaryItemDTOs || [];
+            const events1 = data1.eventDiaryItemDTOs || [];
+            const events2 = data2.eventDiaryItemDTOs || [];
+            const schoolHours = data1.schoolHourItemDTOs || data2.schoolHourItemDTOs || [];
+
+            // Get today's date for highlighting
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let todayIndex = -1;
+
+            // Set title
+            document.getElementById('timetable-title').textContent = 
+                `Teden ${weekId.split('_')[1] || ''}`;
+
+            // Create timetable HTML
+            let timetableHTML = '<table><thead><tr><th class="time-col">Time</th>';
+
+            // Add day headers for both groups
+            days.forEach((day, index) => {
+                const date = new Date(day.date);
+                date.setHours(0, 0, 0, 0);
+                
+                // Check if this is today
+                if (date.getTime() === today.getTime()) {
+                    todayIndex = index;
+                }
+                
+                const dateStr = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear();
+                const dayName = day.dayOfWeekNameShort || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
+                const remarks = day.remarks ? `<br>(${day.remarks})` : '';
+                
+                // Add column for group 1 and 2 with today highlighting
+                const todayClass = (index === todayIndex) ? 'today-header' : '';
+                timetableHTML += `<th colspan="2" class="day-col-group ${todayClass}">${dayName}<br>${dateStr}${remarks}</th>`;
+            });
+            timetableHTML += '</tr><tr><th class="time-col"></th>';
+            
+            // Add group headers for each day
+            days.forEach((day, index) => {
+                const todayClass = (index === todayIndex) ? 'today' : '';
+                timetableHTML += `<th class="day-col ${todayClass}">${groupName1}</th>`;
+                timetableHTML += `<th class="day-col ${todayClass}">${groupName2}</th>`;
+            });
+            timetableHTML += '</tr></thead><tbody>';
+
+            // Create a matrix to hold lessons for each time slot and day for both groups
+            const timeSlots = {};
+            var index       = 0;
+            // Initialize time slots
+            schoolHours
+                .filter(hour => hour.id > 0) // Skip non-standard hours
+                .sort((a, b) => a.number - b.number) // Sort by hour number
+                .forEach(hour => {
+                    timeSlots[index] = {
+                        name: hour.nameShort,
+                        timeFrom: hour.timeFrom,
+                        timeTo: hour.timeTo,
+                        daysGroup1: Array(days.length).fill(''), // For group 1
+                        daysGroup2: Array(days.length).fill(''),  // For group 2
+						activitiesGroup1: Array(days.length).fill(''), // Activities for group 1
+                        activitiesGroup2: Array(days.length).fill('')  // Activities for group 2
+                    };
+                    index = index+1
+                });
+            // Process regular lessons for group 1
+            lessons1.forEach(lesson => {
+                const date = new Date(lesson.date);
+                const dayIndex = days.findIndex(d => {
+                    const dDate = new Date(d.date);
+                    return dDate.getDate() === date.getDate() && 
+                           dDate.getMonth() === date.getMonth() && 
+                           dDate.getFullYear() === date.getFullYear();
+                });
+                
+                if (dayIndex === -1) return;
+
+                const hourNumber = lesson.schoolHourNumber;
+                if (!timeSlots[hourNumber]) return;
+
+                const status = lesson.diaryItemStatusId === 1 ? 'cancelled' : '';
+                const subject = lesson.subjectName || lesson.groupName;
+                const teacher = lesson.performerMainName || '';
+                const room = lesson.placeName ? `<br>${lesson.placeName}` : '';
+                const ge = lesson.subjectName != null ? 'group1-event' : 'optional';
+				const subs = lesson.substitutionCategoryId != null ? 'substitution' : '';
+                timeSlots[hourNumber].daysGroup1[dayIndex] += 
+                    `<div class="event ${ge} ${status} ${subs}">${subject}<br><div class='ucitelj'>${teacher}</div><div class='room'>${room}</div></div><br>`;
+            });
+
+            // Process regular lessons for group 2
+            lessons2.forEach(lesson => {
+                const date = new Date(lesson.date);
+                const dayIndex = days.findIndex(d => {
+                    const dDate = new Date(d.date);
+                    return dDate.getDate() === date.getDate() && 
+                           dDate.getMonth() === date.getMonth() && 
+                           dDate.getFullYear() === date.getFullYear();
+                });
+                
+                if (dayIndex === -1) return;
+
+                const hourNumber = lesson.schoolHourNumber;
+                if (!timeSlots[hourNumber]) return;
+
+                const status = lesson.diaryItemStatusId === 1 ? 'cancelled' : '';
+                const subject = lesson.subjectName || lesson.groupName;
+                const teacher = lesson.performerMainName || '';
+                const room = lesson.placeName ? `<br>${lesson.placeName}` : '';
+				const ge = lesson.subjectName != null ? 'group2-event' : 'optional';
+                const subs = lesson.substitutionCategoryId != null ? 'substitution' : '';
+                timeSlots[hourNumber].daysGroup2[dayIndex] +=
+                    `<div class="event ${ge} ${status} ${subs}">${subject}<br><div class='ucitelj'>${teacher}</div><div class='room'>${room}</div></div><br>`;
+            });
+			
+			  // Process activities for group 1
+            activitiesData.groupName1.forEach(activity => {
+                const dayIndex = activity.dayOfWeek - 1; // Convert to 0-based index
+                if (dayIndex < 0 || dayIndex >= days.length) return;
+
+                // Find the time slot that matches this activity
+                for (const [hourNumber, slot] of Object.entries(timeSlots)) {
+                    if ((time(slot.timeFrom) <= time(activity.timeFrom.substring(0, 5))) && (time(slot.timeTo) >= time(activity.timeFrom.substring(0, 5))) ) { // Compare HH:MM part
+                        const activityHTML = 
+                            `<div class="event activity-event">${activity.groupName}<br><div class='ucitelj'>${activity.performerMainName}</div><br>${activity.timeFrom.substring(0, 5)}-${activity.timeTo.substring(0, 5)}</div>`;
+                        
+                        // Append to existing content if there's already something in this slot
+                        if (timeSlots[hourNumber].activitiesGroup1[dayIndex]) {
+                            timeSlots[hourNumber].activitiesGroup1[dayIndex] += activityHTML;
+                        } 
+						else 
+						{
+                            timeSlots[hourNumber].activitiesGroup1[dayIndex] = activityHTML;
+                        }
+                        break;
+                    }
+                }
+            });
+
+            // Process activities for group 2
+            activitiesData.groupName2.forEach(activity => {
+                const dayIndex = activity.dayOfWeek - 1; // Convert to 0-based index
+                if (dayIndex < 0 || dayIndex >= days.length) return;
+
+                // Find the time slot that matches this activity
+                for (const [hourNumber, slot] of Object.entries(timeSlots)) {
+                    if ((time(slot.timeFrom) <= time(activity.timeFrom.substring(0, 5))) && (time(slot.timeTo) >= time(activity.timeFrom.substring(0, 5))) ) { // Compare HH:MM part
+                        const activityHTML = 
+                            `<div class="event activity-event">${activity.groupName}<br><div class='ucitelj'>${activity.performerMainName}</div><br>${activity.timeFrom.substring(0, 5)}-${activity.timeTo.substring(0, 5)}</div>`;
+                        
+                        // Append to existing content if there's already something in this slot
+                        if (timeSlots[hourNumber].activitiesGroup2[dayIndex]) {
+                            timeSlots[hourNumber].activitiesGroup2[dayIndex] += activityHTML;
+                        } else 
+						{
+                            timeSlots[hourNumber].activitiesGroup2[dayIndex] = activityHTML;
+                        }
+                        break;
+                    }
+                }
+            });
+			
+            // Process events for group 1
+            events1.forEach(event => {
+                const date = new Date(event.date);
+                const dayIndex = days.findIndex(d => {
+                    const dDate = new Date(d.date);
+                    return dDate.getDate() === date.getDate() && 
+                           dDate.getMonth() === date.getMonth() && 
+                           dDate.getFullYear() === date.getFullYear();
+                });
+                
+                if (dayIndex === -1) return;
+
+                const eventStart = event.timeFrom;
+                const eventEnd = event.timeTo;
+                
+                Object.values(timeSlots).forEach(slot => {
+                    const slotStart = slot.timeFrom;
+                    const slotEnd = slot.timeTo;
+                    
+                    if ((eventStart <= slotStart && eventEnd >= slotStart) || 
+                        (eventStart >= slotStart && eventStart <= slotEnd)) {
+                        slot.daysGroup1[dayIndex] = `<div class="event group1-event">${event.eventName}</div>`;
+                    }
+                });
+            });
+
+            // Process events for group 2
+            events2.forEach(event => {
+                const date = new Date(event.date);
+                const dayIndex = days.findIndex(d => {
+                    const dDate = new Date(d.date);
+                    return dDate.getDate() === date.getDate() && 
+                           dDate.getMonth() === date.getMonth() && 
+                           dDate.getFullYear() === date.getFullYear();
+                });
+                
+                if (dayIndex === -1) return;
+
+                const eventStart = event.timeFrom;
+                const eventEnd = event.timeTo;
+                
+                Object.values(timeSlots).forEach(slot => {
+                    const slotStart = slot.timeFrom;
+                    const slotEnd = slot.timeTo;
+                    
+                    if ((eventStart <= slotStart && eventEnd >= slotStart) || 
+                        (eventStart >= slotStart && eventStart <= slotEnd)) {
+                        slot.daysGroup2[dayIndex] = `<div class="event group2-event">${event.eventName}</div>`;
+                    }
+                });
+            });
+            
+            // Generate timetable rows
+            const timeSlotsArray = Object.values(timeSlots)
+                .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom)); // Sort by time
+            
+            // Find the index for MALICA (after 3rd row) and KOSILA (after last working hour)
+            const malicaIndex = 4; // After 4rd row
+            let kosilaIndex = 9; // After all regular hours
+            
+            timeSlotsArray.forEach((slot, slotIndex) => {
+                // Add regular timetable row
+                timetableHTML += `<tr><td class="time-col">${slot.timeFrom}-${slot.timeTo}<br>${slot.name}</td>`;
+                
+                // Add cells for both groups for each day
+                for (let i = 0; i < days.length; i++) {
+                    const todayClass = (i === todayIndex) ? 'today' : '';
+                    
+                    // Group 1 cell (regular classes + activities)
+                    let group1Content = slot.daysGroup1[i] || '';
+                    if (slot.activitiesGroup1[i]) {
+                        group1Content += slot.activitiesGroup1[i];
+                    }
+                    timetableHTML += `<td class="${todayClass}">${group1Content}</td>`;
+                    
+                    // Group 2 cell (regular classes + activities)
+                    let group2Content = slot.daysGroup2[i] || '';
+                    if (slot.activitiesGroup2[i]) {
+                        group2Content += slot.activitiesGroup2[i];
+                    }
+                    timetableHTML += `<td class="${todayClass}">${group2Content}</td>`;
+                }
+                
+                timetableHTML += '</tr>';
+                
+                // Add MALICA row after 4rd row
+                if (slotIndex === malicaIndex - 1) {
+                    timetableHTML += `<tr><td class="time-col meal-time">MALICA<br>10:00-10:20</td>`;
+                    
+                    for (let i = 0; i < days.length; i++) {
+                        const date = new Date(days[i].date);
+                        const sloDayName = getSlovenianDayName(date);
+                        const todayClass = (i === todayIndex) ? 'today' : '';
+                        const mealText = mealData[sloDayName] ? mealData[sloDayName].malica : 'Ni podatka';
+                        
+                        timetableHTML += `<td colspan="2" class="meal-cell ${todayClass}">${mealText}</td>`;
+                    }
+                    
+                    timetableHTML += '</tr>';
+                }
+            });
+
+            // Add KOSILA row after all regular hours
+          //  if (slotIndex === kosilaIndex - 1) 
+          {
+                timetableHTML += `<tr><td class="time-col meal-time">KOSILA<br>13:00-14:00</td>`;
+            
+                for (let i = 0; i < days.length; i++) {
+                    const date = new Date(days[i].date);
+                    const sloDayName = getSlovenianDayName(date);
+                    const todayClass = (i === todayIndex) ? 'today' : '';
+                    const mealText = mealData[sloDayName] ? mealData[sloDayName].kosila : 'Ni podatka';
+                    
+                    timetableHTML += `<td colspan="2" class="meal-cell ${todayClass}">${mealText}</td>`;
+                }
+            }
+            timetableHTML += '</tr>';
+
+            timetableHTML += '</tbody></table>';
+            document.getElementById('timetable').innerHTML = timetableHTML;
+
+            // Add remarks
+            let remarksHTML = '<p><strong>Remarks:</strong></p><ul>';
+            if (days.some(d => d.remarks)) {
+                remarksHTML += '<li>NPZ - Notes about special school days</li>';
+            }
+            remarksHTML += '<li>Classes marked with strikethrough are cancelled</li>';
+            remarksHTML += `<li><span style="background-color: #e6f7ff; padding: 2px 5px;">Blue</span> cells are for ${groupName1}</li>`;
+            remarksHTML += `<li><span style="background-color: #e6ffe6; padding: 2px 5px;">Green</span> cells are for ${groupName2}</li>`;
+            remarksHTML += `<li><span style="background-color: #fffacd; padding: 2px 5px;">Yellow</span> highlights today's date</li>`;
+			remarksHTML += `<li><span style="background-color: #f9e6ff; padding: 2px 5px; border: 1px dashed #c79fd6;">Purple</span> cells are extracurricular activities</li>`;
+            remarksHTML += `<li><span style="background-color: #fff0e0; padding: 2px 5px;">Orange</span> cells show meal information</li>`;
+            remarksHTML += '</ul>';
+
+            document.getElementById('remarks').innerHTML = remarksHTML;
+            
+            Array.prototype.forEach.call(document.getElementsByClassName("optional"), function(el) {
+                //console.log(el.innerText)
+                if (el.innerText.includes("NIZ NTE2") ||  el.innerText.includes("ID SUŠ") || el.innerText.includes("DOD 5C" ))
+                {
+                    el.className = 'event group1-event'
+                }
+                
+                if (el.innerText.includes("DOD 3D" ))
+                {
+                    el.className = 'event group2-event'
+                }
+            });
+
+			/*
+			Array.prototype.forEach.call(document.getElementsByClassName("optional"), function(_class) 
+			{
+				_class.addEventListener('mouseenter', function (e) {
+					Array.prototype.forEach.call(document.getElementsByClassName("optional"), function(__class){__class.classList.add('hidden');})
+				});
+				_class.addEventListener('mouseout', function () {
+					Array.prototype.forEach.call(document.getElementsByClassName("optional"), function(__class){__class.classList.add('hidden');})
+				});
+			})
+            */
+        }
+    </script>
 </body>
 </html>
