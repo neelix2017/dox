@@ -1,9 +1,9 @@
 {
-  "name": "@neelix2017/samsungx",
+  "name": "/Urnik",
   "appName": "Urnik",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Šolski urnik",
-  "packageType": "apps",
+  "packageType": "app",
   "websiteURL": "https://lg.tv.twitch.tv/",
   "main": "main.js",
   "author": "Neelix",
@@ -18,9 +18,10 @@
     "MediaTrackPrevious"
   ],
   "repository": {
-    "url": "https://github.com/neelix2017/samsungx"
+    "url": "https://github.com/neelix2017/samsung-z"
   }
 }
+
 
 
 
