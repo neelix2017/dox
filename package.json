@@ -1,8 +1,16 @@
 {
   "id": "domoticz",
   "name": "Domoticz",
+  "appName": "Domoticz",
+  "version": "1.0.",
+  "packageType": "app",
+  "appPath": "index.html",
+  "author": "Peter",
+  "serviceFile": "",
+  "name": "Domoticz",
   "version": "0.0.1",
   "description": "View Domoticz inside TizenBrew",
   "entry": "index.html",
   "type": "web"
 }
+
