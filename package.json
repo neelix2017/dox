@@ -1,6 +1,6 @@
 {
   "id": "domoticz",
-  "name": "Domoticz",
+  "name": "@Peter/Domoticz",
   "appName": "Domoticz",
   "version": "1.0.",
   "packageType": "app",
@@ -11,6 +11,19 @@
   "version": "0.0.1",
   "description": "View Domoticz inside TizenBrew",
   "entry": "index.html",
-  "type": "web"
+  "type": "web",  
+  "main": "main.js",
+  "keys": [
+    "MediaPlayPause",
+    "MediaPlay",
+    "MediaPause",
+    "MediaStop",
+    "MediaFastForward",
+    "MediaRewind",
+    "MediaTrackNext",
+    "MediaTrackPrevious"
+  ],
+  "license": "GPL-3.0-only"
 }
+
 
