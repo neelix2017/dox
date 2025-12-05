@@ -1,5 +1,5 @@
 document.addEventListener("keydown", (e) => {
-const frame = document.getElementById("gpxFrame").contentWindow;
+const frame = document.getElementById("myFrame").contentWindow;
 
 
 // Translate arrow keys to scroll events
@@ -21,3 +21,4 @@ bubbles: true
 frame.dispatchEvent(evt);
 }
 });
+
