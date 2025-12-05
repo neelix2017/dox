@@ -1,6 +1,6 @@
 document.addEventListener("keydown", (e) => {
 const frame = document.getElementById("myFrame").contentWindow;
-alert('done')
+alert(e.keyCode)
 
 // Translate arrow keys to scroll events
 if (e.key === "ArrowUp" || e.keyCode === 38) frame.scrollBy(0, -50);
@@ -21,6 +21,7 @@ bubbles: true
 frame.dispatchEvent(evt);
 }
 });
+
 
 
 
