@@ -1,7 +1,7 @@
 {
-  "id": "domoticz",
-  "name": "@Peter/Domoticz",
-  "appName": "Domoticz",
+  "id": "urnik",
+  "name": "@Peter/Urnik",
+  "appName": "Šolski urnik",
   "version": "1.0.",
   "packageType": "app",
   "appPath": "index.html",
@@ -9,7 +9,7 @@
   "serviceFile": "",
   "name": "Domoticz",
   "version": "0.0.1",
-  "description": "View Domoticz inside TizenBrew",
+  "description": "Šolski urnik OŠ 8.talcev",
   "entry": "index.html",
   "type": "web",  
   "main": "main.js",
@@ -25,5 +25,6 @@
   ],
   "license": "GPL-3.0-only"
 }
+
 
 
