@@ -3,11 +3,11 @@ const frame = document.getElementById("myFrame").contentWindow;
 //alert(e.keyCode)
 
 // Translate arrow keys to scroll events
-if ( e.keyCode === 38) frame.scrollBy(0, -50);  //"ArrowUp"
-if ( e.keyCode === 40) frame.scrollBy(0, 50);  //"ArrowDown"
+if ( e.keyCode === 38) frame.document.scrollingElement.scrollTop -= 60;  //"ArrowUp"
+if ( e.keyCode === 40) frame.document.scrollingElement.scrollTop += 60;  //"ArrowDown"
 if ( e.keyCode === 37) frame.scrollBy(-50, 0);  //"ArrowLeft"
 if ( e.keyCode === 39) frame.scrollBy(50, 0);  //"ArrowRight
-if ( e.keyCode === 10009) alert('Back');  //"Back"
+if ( e.keyCode === 10009) window.location.href = "tizenbrew://exit";  //"Back"
 if ( e.keyCode === 10252) alert('Play');  //"Play"
 
 // Enter key → click center
@@ -22,6 +22,7 @@ bubbles: true
 frame.dispatchEvent(evt);
 }
 });
+
 
 
 
